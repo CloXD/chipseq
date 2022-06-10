@@ -54,8 +54,8 @@ if (nintersects > 70) {
 }
 
 pdf(opt$output_file,onefile=F,height=10,width=20)
-
-upset(
+if ( length(sets) > 1 ){
+    upset(
     fromExpression(comb.vec),
     nsets = length(sets),
     nintersects = nintersects,
@@ -69,6 +69,18 @@ upset(
     number.angles = 30,
     text.scale = c(1.5, 1.5, 1.5, 1.5, 1.5, 1.2)
 )
+} else {
+    par(mar = c(0, 0, 0, 0))
+    plot(x = 0:10, y = 0:10, ann = F,bty = "n",type = "n",
+     xaxt = "n", yaxt = "n")
+     if(length(sets) == 1 ){
+        text(x = 5,y = 5,paste0("Found only one peak set"))
+     } else {
+         text(x = 5,y = 5,paste0("No peak sets found"))
+     }
+    
+}
+
 
 dev.off()
 
