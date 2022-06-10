@@ -63,23 +63,29 @@ for (idx in 1:length(PeakFiles)) {
         isNarrow <- TRUE
         header <- c(header,"summit")
     }
-    peaks <- read.table(PeakFiles[idx], sep="\t", header=FALSE)
-    colnames(peaks) <- header
-
-    ## GET SUMMARY STATISTICS
-    peaks.dat <- peaks[,c('fold','-log10(qvalue)','-log10(pvalue)')]
-    peaks.dat$length <- (peaks$end - peaks$start)
-    for (cname in colnames(peaks.dat)) {
-        sdat <- summary(peaks.dat[,cname])
-        sdat["num_peaks"] <- nrow(peaks.dat)
-        sdat["measure"] <- cname
-        sdat["sample"] <- sampleid
-        sdat <- t(data.frame(x=matrix(sdat),row.names=names(sdat)))
-        summary.dat <- rbind(summary.dat,sdat)
+    
+    peaks <- tryCatch({
+        return(read.table(PeakFiles[idx], sep="\t", header=FALSE))
+    }, error = function(){
+        return(NULL)
     }
-    colnames(peaks.dat) <- c('fold','fdr','pvalue','length')
-    peaks.dat$name <- rep(sampleid,nrow(peaks.dat))
-    plot.dat <- rbind(plot.dat,peaks.dat)
+    if ( ! is.null(peaks)){
+        colnames(peaks) <- header
+        ## GET SUMMARY STATISTICS
+        peaks.dat <- peaks[,c('fold','-log10(qvalue)','-log10(pvalue)')]
+        peaks.dat$length <- (peaks$end - peaks$start)
+        for (cname in colnames(peaks.dat)) {
+            sdat <- summary(peaks.dat[,cname])
+            sdat["num_peaks"] <- nrow(peaks.dat)
+            sdat["measure"] <- cname
+            sdat["sample"] <- sampleid
+            sdat <- t(data.frame(x=matrix(sdat),row.names=names(sdat)))
+            summary.dat <- rbind(summary.dat,sdat)
+        }
+        colnames(peaks.dat) <- c('fold','fdr','pvalue','length')
+        peaks.dat$name <- rep(sampleid,nrow(peaks.dat))
+        plot.dat <- rbind(plot.dat,peaks.dat)
+    }
 }
 plot.dat$name <- factor(plot.dat$name, levels=sort(unique(as.character(plot.dat$name))))
 
