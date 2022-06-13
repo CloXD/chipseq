@@ -68,8 +68,9 @@ for (idx in 1:length(PeakFiles)) {
         return(read.table(PeakFiles[idx], sep="\t", header=FALSE))
     }, error = function(){
         return(NULL)
-    }
-    if ( ! is.null(peaks)){
+    })
+
+    if ( ! is.null(peaks) ) {
         colnames(peaks) <- header
         ## GET SUMMARY STATISTICS
         peaks.dat <- peaks[,c('fold','-log10(qvalue)','-log10(pvalue)')]
